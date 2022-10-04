@@ -1,0 +1,51 @@
+--- a/testsuite/python_support/utils.py
++++ b/testsuite/python_support/utils.py
+@@ -372,14 +372,14 @@
+             ada_main = [ada_main]
+ 
+         # Generate a project file to build the given Ada main and then run
+-        # the program. Do a static build to improve the debugging experience.
++        # the program.
+         with open('gen.gpr', 'w') as f:
+             f.write(project_template.format(
+                 main_sources=', '.join('"{}"'.format(m) for m in ada_main)
+             ))
+         run('gprbuild', '-Pgen', '-q', '-p',
+-            '-XLIBRARY_TYPE=static',
+-            '-XXMLADA_BUILD=static')
++            '-XLIBRARY_TYPE=relocatable',
++            '-XXMLADA_BUILD=relocatable')
+ 
+         for i, m in enumerate(ada_main):
+             assert m.endswith('.adb')
+--- a/testsuite/tests/misc/link_two_libs/test.py
++++ b/testsuite/tests/misc/link_two_libs/test.py
+@@ -35,15 +35,12 @@
+         manage_py,
+         'make',
+         '-vnone',
+-
+-        # To simplify this test (in particular environment setup), do a static
+-        # link.
+-        '--library-types=static',
++        '--library-types=relocatable',
+     )
+ 
+ # Build a program that uses both and run it
+ subprocess.check_call(['gprbuild', '-q', '-Pmain.gpr', '-p',
+-                       '-XLIBRARY_TYPE=static'])
++                       '-XLIBRARY_TYPE=relocatable'])
+ subprocess.check_call([os.path.join('obj', 'main')])
+ 
+ print('Done')
+--- a/testsuite/testsuite.py
++++ b/testsuite/testsuite.py
+@@ -144,7 +144,7 @@
+                 gargs.append('--subdirs=gnatcov')
+                 cargs.extend(['-fdump-scos', '-fpreserve-control-flow'])
+ 
+-            for build in ('static', 'relocatable'):
++            for build in ('relocatable'):
+                 p = subprocess.run(
+                     ['gprbuild'] + gargs +
+                     ['-XLIBRARY_TYPE={}'.format(build)] + cargs,
