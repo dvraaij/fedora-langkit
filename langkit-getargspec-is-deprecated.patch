@@ -1,0 +1,115 @@
+--- a/langkit/expressions/base.py
++++ b/langkit/expressions/base.py
+@@ -152,11 +152,11 @@
+     fn_arguments = []
+     fn_expr = None
+ 
+-    argspec = inspect.getargspec(fn)
++    argspec = inspect.getfullargspec(fn)
+     defaults = argspec.defaults or []
+ 
+     check_multiple([
+-        (not argspec.varargs or not argspec.keywords, 'Invalid'
++        (not argspec.varargs or not argspec.varkw, 'Invalid'
+          ' function signature: no *args nor **kwargs allowed'),
+ 
+         (len(argspec.args) == len(defaults), 'All parameters '
+@@ -424,7 +424,7 @@
+         elif not inspect.isfunction(func):
+             return 'expr', ['???']
+ 
+-        args, varargs, keywords, defaults = inspect.getargspec(func)
++        args, varargs, keywords, defaults, *_ = inspect.getfullargspec(func)
+ 
+         # If present, discard the first argument (self), which is irrelevant
+         # for documentation purposes. The second argument is the prefix for the
+@@ -907,7 +907,7 @@
+                 if self.sub_expressions else ""
+             )
+ 
+-        nb_args = len(inspect.getargspec(fn).args)
++        nb_args = len(inspect.getfullargspec(fn).args)
+ 
+         assert nb_args > 1
+ 
+@@ -2681,7 +2681,7 @@
+             another AbstractExpression.
+         """
+         super().__init__()
+-        argspec = inspect.getargspec(lambda_fn)
++        argspec = inspect.getfullargspec(lambda_fn)
+ 
+         self.vars = None
+         ":type: list[AbstractVariable]"
+@@ -2695,10 +2695,10 @@
+         self.lambda_fn = lambda_fn
+ 
+     def do_prepare(self):
+-        argspec = inspect.getargspec(self.lambda_fn)
++        argspec = inspect.getfullargspec(self.lambda_fn)
+ 
+         check_multiple([
+-            (not argspec.varargs and not argspec.keywords,
++            (not argspec.varargs and not argspec.varkw,
+              'Invalid function for Let expression (*args and **kwargs '
+              'not accepted)'),
+ 
+--- a/langkit/expressions/boolean.py
++++ b/langkit/expressions/boolean.py
+@@ -479,11 +479,11 @@
+         if self.then_expr:
+             return
+ 
+-        argspec = inspect.getargspec(self.then_fn)
++        argspec = inspect.getfullargspec(self.then_fn)
+         check_source_language(
+             len(argspec.args) == 1
+             and not argspec.varargs
+-            and not argspec.keywords
++            and not argspec.varkw
+             and not argspec.defaults,
+             'Invalid lambda for Then expression: exactly one parameter is'
+             ' required, without a default value'
+--- a/langkit/expressions/collections.py
++++ b/langkit/expressions/collections.py
+@@ -166,13 +166,13 @@
+         if self.expr is not None:
+             return
+ 
+-        argspec = inspect.getargspec(self.expr_fn)
++        argspec = inspect.getfullargspec(self.expr_fn)
+ 
+         check_multiple([
+             (len(argspec.args) in (1, 2),
+              'Invalid collection iteration lambda: only one '
+              'or two parameters expected'),
+-            (not argspec.varargs and not argspec.keywords,
++            (not argspec.varargs and not argspec.varkw,
+              'Invalid collection iteration lambda: no *args or **kwargs'),
+             (not argspec.defaults,
+              'Invalid collection iteration lambda: No default values allowed '
+@@ -529,7 +529,7 @@
+         if self.element_var.source_name is None:
+             for fn in (self.filter_fn, self.take_while_pred):
+                 if fn not in builtin_collection_functions:
+-                    argspec = inspect.getargspec(fn)
++                    argspec = inspect.getfullargspec(fn)
+                     self.element_var.source_name = names.Name.from_lower(
+                         argspec.args[0]
+                     )
+--- a/langkit/expressions/structs.py
++++ b/langkit/expressions/structs.py
+@@ -1316,11 +1316,11 @@
+         self.matchers = []
+ 
+         for i, match_fn in enumerate(self.matchers_functions):
+-            argspec = inspect.getargspec(match_fn)
++            argspec = inspect.getfullargspec(match_fn)
+             check_source_language(
+                 len(argspec.args) == 1 and
+                 not argspec.varargs and
+-                not argspec.keywords and
++                not argspec.varkw and
+                 (not argspec.defaults or len(argspec.defaults) < 2),
+                 'Invalid matcher lambda'
+             )

@@ -1,0 +1,3 @@
+# Attributes for syntax highlighting in GitLab.
+*.spec  gitlab-language=rpm-specfile
+*.patch gitlab-language=diff
