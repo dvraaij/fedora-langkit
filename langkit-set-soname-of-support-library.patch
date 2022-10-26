@@ -1,7 +1,7 @@
---- a/support/langkit_support.gpr
-+++ b/support/langkit_support.gpr
+--- a/langkit/support/langkit_support.gpr
++++ b/langkit/support/langkit_support.gpr
 @@ -17,6 +17,7 @@
- 
+
     for Library_Name use "langkit_support";
     for Library_Kind use Library_Kind_Param;
 +   for Library_Version use "liblangkit_support.so." & external("VERSION");

@@ -7,7 +7,7 @@
 # Upstream source information.
 %global upstream_owner    AdaCore
 %global upstream_name     langkit
-%global upstream_version  22.0.0
+%global upstream_version  23.0.0
 %global upstream_gittag   v%{upstream_version}
 
 Name:           langkit
@@ -15,13 +15,11 @@ Version:        %{upstream_version}
 Release:        1%{?dist}
 Summary:        A language creation framework
 
-License:        GPL-3.0-only WITH GCC-exception-3.1
+License:        Apache-2.0
 
 URL:            https://github.com/%{upstream_owner}/%{upstream_name}
 Source:         %{url}/archive/%{upstream_gittag}/%{upstream_name}-%{upstream_version}.tar.gz
 
-# [Fixed upstream] Rename collections.Sequence to collections.abc.Sequence.
-Patch:          %{name}-collections-sequence.patch
 # [Fedora specific] Python 3.11: getargspec() is deprecated, use getfullargspec() instead.
 Patch:          %{name}-getargspec-is-deprecated.patch
 # [Fedora specific] Set support library soname.
@@ -108,7 +106,7 @@ This package contains the runtime support library.
 # Build the support library.
 gprbuild %{GPRbuild_optflags} \
          -XBUILD_MODE=prod -XLIBRARY_TYPE=relocatable -XVERSION=%{version} \
-         support/langkit_support.gpr
+         langkit/support/langkit_support.gpr
 
 
 #############
@@ -129,7 +127,7 @@ gprinstall --create-missing-dirs --no-manifest --no-build-var \
            --link-lib-subdir=%{buildroot}%{_libdir} \
            --sources-subdir=%{buildroot}%{_includedir}/langkit-support \
            -XBUILD_MODE=prod -XLIBRARY_TYPE=relocatable -XVERSION=%{version} \
-           support/langkit_support.gpr
+           langkit/support/langkit_support.gpr
 
 # Show installed files (to ease debugging based on build server logs).
 find %{buildroot} -exec stat --format "%A %n" {} \;
@@ -227,7 +225,7 @@ exit 1
 ###########
 
 %files devel -f %pyproject_files
-%license COPYING3 COPYING.RUNTIME
+%license LICENSE
 %doc README*
 %{_bindir}/create-project.py
 
@@ -248,5 +246,9 @@ exit 1
 ###############
 
 %changelog
+* Sun Oct 30 2022 Dennis van Raaij <dvraaij@fedoraproject.org> - 23.0.0-1
+- Updated to v23.0.0, using the archive available on GitHub.
+- Removed langkit-collections-sequence.patch; has been fixed upstream (commit: cdc5768).
+
 * Sun Sep 04 2022 Dennis van Raaij <dvraaij@fedoraproject.org> - 22.0.0-1
 - New package.
