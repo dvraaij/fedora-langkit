@@ -7,5 +7,5 @@
 +pragma Warnings (Off, "null range");
 +
  with GNATCOLL.GMP.Integers;
- with GNATCOLL.Traces;
  
+ with Langkit_Support.Errors;

@@ -1,6 +1,6 @@
 --- a/testsuite/python_support/utils.py
 +++ b/testsuite/python_support/utils.py
-@@ -372,14 +372,14 @@
+@@ -404,14 +404,14 @@
              ada_main = [ada_main]
  
          # Generate a project file to build the given Ada main and then run
@@ -40,12 +40,12 @@
  print('Done')
 --- a/testsuite/testsuite.py
 +++ b/testsuite/testsuite.py
-@@ -144,7 +144,7 @@
+@@ -167,7 +167,7 @@
                  gargs.append('--subdirs=gnatcov')
                  cargs.extend(['-fdump-scos', '-fpreserve-control-flow'])
  
 -            for build in ('static', 'relocatable'):
 +            for build in ('relocatable'):
-                 p = subprocess.run(
+                 run(
+                     f'Langkit support - build {build}',
                      ['gprbuild'] + gargs +
-                     ['-XLIBRARY_TYPE={}'.format(build)] + cargs,

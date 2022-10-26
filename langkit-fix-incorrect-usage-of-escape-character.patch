@@ -1,0 +1,19 @@
+--- a/langkit/dsl_unparse.py
++++ b/langkit/dsl_unparse.py
+@@ -1892,7 +1892,7 @@
+ def pp(strn, indent_step=4, line_size=80):
+     from io import StringIO
+     import re
+-    buf = re.split("(\$hl|\$sl|\$i|\$d)", strn)
++    buf = re.split(r"(\$hl|\$sl|\$i|\$d)", strn)
+     file_str = StringIO()
+     indent_level = 0
+     current_line = ""
+--- a/testsuite/python_support/quotemeta.py
++++ b/testsuite/python_support/quotemeta.py
+@@ -1,4 +1,4 @@
+-"""
++r"""
+ This package allows us to transform testcase expressions
+ into regular expressions.
+ 

@@ -1,0 +1,12 @@
+--- a/setup.py
++++ b/setup.py
+@@ -19,7 +19,8 @@
+     author_email='report@adacore.com',
+     url='https://www.adacore.com',
+     description='A Python framework to generate language parsers',
+-    install_requires=['Mako', 'PyYAML', 'funcy', 'docutils', 'e3-core'],
++    install_requires=['Mako', 'PyYAML', 'funcy', 'docutils', 'e3-core',
++                      'railroad-diagrams'],
+     packages=['langkit',
+               'langkit.expressions',
+               'langkit.gdb',

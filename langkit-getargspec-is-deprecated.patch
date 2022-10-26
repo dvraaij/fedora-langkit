@@ -1,6 +1,6 @@
 --- a/langkit/expressions/base.py
 +++ b/langkit/expressions/base.py
-@@ -152,11 +152,11 @@
+@@ -158,11 +158,11 @@
      fn_arguments = []
      fn_expr = None
  
@@ -14,37 +14,19 @@
           ' function signature: no *args nor **kwargs allowed'),
  
          (len(argspec.args) == len(defaults), 'All parameters '
-@@ -424,7 +424,7 @@
-         elif not inspect.isfunction(func):
-             return 'expr', ['???']
+@@ -2822,7 +2822,7 @@
+             lambda_fn = None
  
--        args, varargs, keywords, defaults = inspect.getargspec(func)
-+        args, varargs, keywords, defaults, *_ = inspect.getfullargspec(func)
+         else:
+-            argspec = inspect.getargspec(lambda_fn)
++            argspec = inspect.getfullargspec(lambda_fn)
  
-         # If present, discard the first argument (self), which is irrelevant
-         # for documentation purposes. The second argument is the prefix for the
-@@ -907,7 +907,7 @@
-                 if self.sub_expressions else ""
-             )
+             var_names = argspec.args
+             var_exprs = argspec.defaults or []
+@@ -2843,10 +2843,10 @@
+         if self.lambda_fn is None:
+             return
  
--        nb_args = len(inspect.getargspec(fn).args)
-+        nb_args = len(inspect.getfullargspec(fn).args)
- 
-         assert nb_args > 1
- 
-@@ -2681,7 +2681,7 @@
-             another AbstractExpression.
-         """
-         super().__init__()
--        argspec = inspect.getargspec(lambda_fn)
-+        argspec = inspect.getfullargspec(lambda_fn)
- 
-         self.vars = None
-         ":type: list[AbstractVariable]"
-@@ -2695,10 +2695,10 @@
-         self.lambda_fn = lambda_fn
- 
-     def do_prepare(self):
 -        argspec = inspect.getargspec(self.lambda_fn)
 +        argspec = inspect.getfullargspec(self.lambda_fn)
  
@@ -56,7 +38,7 @@
  
 --- a/langkit/expressions/boolean.py
 +++ b/langkit/expressions/boolean.py
-@@ -479,11 +479,11 @@
+@@ -475,11 +475,11 @@
          if self.then_expr:
              return
  
@@ -72,34 +54,25 @@
              ' required, without a default value'
 --- a/langkit/expressions/collections.py
 +++ b/langkit/expressions/collections.py
-@@ -166,13 +166,13 @@
-         if self.expr is not None:
-             return
+@@ -265,13 +265,13 @@
+             " function"
+         )
  
--        argspec = inspect.getargspec(self.expr_fn)
-+        argspec = inspect.getfullargspec(self.expr_fn)
+-        argspec = inspect.getargspec(expr_fn)
++        argspec = inspect.getfullargspec(expr_fn)
  
          check_multiple([
              (len(argspec.args) in (1, 2),
-              'Invalid collection iteration lambda: only one '
-              'or two parameters expected'),
+              'Invalid collection iteration lambda: only one'
+              ' or two parameters expected'),
 -            (not argspec.varargs and not argspec.keywords,
 +            (not argspec.varargs and not argspec.varkw,
               'Invalid collection iteration lambda: no *args or **kwargs'),
              (not argspec.defaults,
-              'Invalid collection iteration lambda: No default values allowed '
-@@ -529,7 +529,7 @@
-         if self.element_var.source_name is None:
-             for fn in (self.filter_fn, self.take_while_pred):
-                 if fn not in builtin_collection_functions:
--                    argspec = inspect.getargspec(fn)
-+                    argspec = inspect.getfullargspec(fn)
-                     self.element_var.source_name = names.Name.from_lower(
-                         argspec.args[0]
-                     )
+              'Invalid collection iteration lambda: No default values allowed'
 --- a/langkit/expressions/structs.py
 +++ b/langkit/expressions/structs.py
-@@ -1316,11 +1316,11 @@
+@@ -1327,11 +1327,11 @@
          self.matchers = []
  
          for i, match_fn in enumerate(self.matchers_functions):
