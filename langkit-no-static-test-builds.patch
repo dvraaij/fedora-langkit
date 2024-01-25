@@ -1,23 +1,26 @@
 --- a/testsuite/python_support/utils.py
 +++ b/testsuite/python_support/utils.py
-@@ -404,14 +404,14 @@
-             ada_main = [ada_main]
+@@ -434,8 +434,7 @@
+             if any(f.endswith(ext) for ext in [".adb", ".ads"]):
+                 langs.add("Ada")
  
-         # Generate a project file to build the given Ada main and then run
--        # the program. Do a static build to improve the debugging experience.
-+        # the program.
-         with open('gen.gpr', 'w') as f:
-             f.write(project_template.format(
-                 main_sources=', '.join('"{}"'.format(m) for m in ada_main)
+-        # Generate a project file to build the given mains. Do a static build
+-        # (the default) to improve the debugging experience.
++        # Generate a project file to build the given mains.
+         with open("gen.gpr", "w") as f:
+ 
+             def fmt_str_list(strings: List[str]) -> str:
+@@ -446,7 +445,9 @@
+                 source_dirs=fmt_str_list(source_dirs),
+                 main_sources=fmt_str_list(gpr_mains),
              ))
-         run('gprbuild', '-Pgen', '-q', '-p',
--            '-XLIBRARY_TYPE=static',
--            '-XXMLADA_BUILD=static')
+-        run("gprbuild", "-Pgen", "-q", "-p")
++        run("gprbuild", "-Pgen", "-q", "-p",
 +            '-XLIBRARY_TYPE=relocatable',
 +            '-XXMLADA_BUILD=relocatable')
  
-         for i, m in enumerate(ada_main):
-             assert m.endswith('.adb')
+         # Now run all mains. If there are more than one main to run, print a
+         # heading before each one.
 --- a/testsuite/tests/misc/link_two_libs/test.py
 +++ b/testsuite/tests/misc/link_two_libs/test.py
 @@ -35,15 +35,12 @@
@@ -40,7 +43,7 @@
  print('Done')
 --- a/testsuite/testsuite.py
 +++ b/testsuite/testsuite.py
-@@ -167,7 +167,7 @@
+@@ -191,7 +191,7 @@
                  gargs.append('--subdirs=gnatcov')
                  cargs.extend(['-fdump-scos', '-fpreserve-control-flow'])
  

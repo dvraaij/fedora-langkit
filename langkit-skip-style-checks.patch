@@ -1,0 +1,7 @@
+--- a/testsuite/tests/stylechecks/test.yaml
++++ b/testsuite/tests/stylechecks/test.yaml
+@@ -1,2 +1,4 @@
+ driver: python
+ input_sources: []
++control:
++- [SKIP, "True", "Fedora-specific: Style checks not relevant for functioning."]

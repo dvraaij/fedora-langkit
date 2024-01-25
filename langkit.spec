@@ -4,7 +4,7 @@
 # Upstream source information.
 %global upstream_owner    AdaCore
 %global upstream_name     langkit
-%global upstream_version  23.0.0
+%global upstream_version  24.0.0
 %global upstream_gittag   v%{upstream_version}
 
 Name:           langkit
@@ -12,7 +12,7 @@ Version:        %{upstream_version}
 Release:        1%{?dist}
 Summary:        A language creation framework
 
-License:        Apache-2.0
+License:        Apache-2.0 WITH LLVM-Exception
 
 URL:            https://github.com/%{upstream_owner}/%{upstream_name}
 Source:         %{url}/archive/%{upstream_gittag}/%{upstream_name}-%{upstream_version}.tar.gz
@@ -21,12 +21,12 @@ Source:         %{url}/archive/%{upstream_gittag}/%{upstream_name}-%{upstream_ve
 Patch:          %{name}-set-soname-of-support-library.patch
 # [Fedora-specific] All builds during testing (check) should be of type `relocatable`.
 Patch:          %{name}-no-static-test-builds.patch
-# Python 3.11: getargspec() is deprecated, use getfullargspec() instead.
-Patch:          %{name}-getargspec-is-deprecated.patch
+# [Fedora-specific] Skip style checks when testing: not relevant for functioning.
+Patch:          %{name}-skip-style-checks.patch
+# [Fedora-specific] Generation of standalone code not supported: no bundling.
+Patch:          %{name}-generation-of-standalone-code-not-supported.patch
 # Python 3.12: Fix syntax warning on incorrect usage of the escape character.
 Patch:          %{name}-fix-incorrect-usage-of-escape-character.patch
-# GNAT 12: Suppress null range warning.
-Patch:          %{name}-suppress-null-range-warning.patch
 # Add missing dependency to the railroad-diagrams PyPI package.
 Patch:          %{name}-add-railroad-dependency.patch
 
@@ -36,6 +36,7 @@ BuildRequires:  fedora-gnat-project-common >= 3.17
 BuildRequires:  gnatcoll-core-devel
 BuildRequires:  gnatcoll-gmp-devel
 BuildRequires:  gnatcoll-iconv-devel
+BuildRequires:  libadasat-devel
 BuildRequires:  python3-devel
 %if %{with check}
 BuildRequires:  python3-e3-testsuite
@@ -68,6 +69,7 @@ Requires:   fedora-gnat-project-common
 Requires:   gnatcoll-core-devel
 Requires:   gnatcoll-gmp-devel
 Requires:   gnatcoll-iconv-devel
+Requires:   libadasat-devel
 # An additional provides to help users find the package.
 Provides:   python3-%{name}
 
@@ -189,8 +191,8 @@ for lang in lkt python; do
     # -- ignore undocumented nodes, following `manage.py make`.
     %python3 ./manage.py generate --disable-warning=undocumented-nodes
 
-    # Build the library.
-    gprbuild %{GPRbuild_flags} \
+    # Build the library. Use extensions and the latest Ada version (-gnatX).
+    gprbuild %{GPRbuild_flags} -cargs:Ada -gnatX -gargs \
              -XBUILD_MODE=prod -XLIBRARY_TYPE=relocatable \
              build/lib${lang}lang.gpr
 
@@ -217,7 +219,8 @@ eval $(%python3 ./manage.py setenv --no-langkit-support --build-mode=prod)
          --max-consecutive-failures=4 \
          --with-python=%python3 \
          --disable-tear-up-builds \
-         --disable-ocaml
+         --disable-ocaml \
+         --disable-java
 
 %endif
 
@@ -227,7 +230,7 @@ eval $(%python3 ./manage.py setenv --no-langkit-support --build-mode=prod)
 ###########
 
 %files devel -f %pyproject_files
-%license LICENSE
+%license LICENSE.txt
 %doc README*
 %{_bindir}/create-project.py
 
@@ -248,6 +251,13 @@ eval $(%python3 ./manage.py setenv --no-langkit-support --build-mode=prod)
 ###############
 
 %changelog
+* Sun Jan 28 2024 Dennis van Raaij <dvraaij@fedoraproject.org> - 24.0.0-1
+- Updated to v24.0.0.
+- Updated license: LLVM exception has been added.
+- Removed langkit-getargspec-is-deprecated.patch; has been fixed upstream (commit: 52084ad).
+- Removed langkit-suppress-null-range-warning.patch; no longer needed.
+- Added 'libadasat' as build dependency.
+
 * Sun Oct 30 2022 Dennis van Raaij <dvraaij@fedoraproject.org> - 23.0.0-1
 - Updated to v23.0.0.
 - Removed langkit-collections-sequence.patch; has been fixed upstream (commit: cdc5768).

@@ -1,6 +1,6 @@
 --- a/langkit/dsl_unparse.py
 +++ b/langkit/dsl_unparse.py
-@@ -1892,7 +1892,7 @@
+@@ -1896,7 +1896,7 @@
  def pp(strn, indent_step=4, line_size=80):
      from io import StringIO
      import re

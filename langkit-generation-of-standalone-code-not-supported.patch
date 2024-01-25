@@ -1,0 +1,56 @@
+--- a/contrib/lkt/manage.py
++++ b/contrib/lkt/manage.py
+@@ -37,7 +37,7 @@
+             default_unit_provider=LibraryEntity(
+                 'Liblktlang.Default_Provider', 'Create'
+             ),
+-            standalone=True,
++            standalone=False,
+         )
+ 
+     def generate_prelude(self, emitter, context):
+--- a/contrib/python/manage.py
++++ b/contrib/python/manage.py
+@@ -16,7 +16,7 @@
+         return CompileCtx(lang_name='Python',
+                           lexer=python_lexer,
+                           grammar=python_grammar,
+-                          standalone=True)
++                          standalone=False)
+ 
+ 
+ if __name__ == '__main__':
+--- a/contrib/lkt/extensions/src/liblktlang-default_provider.ads
++++ b/contrib/lkt/extensions/src/liblktlang-default_provider.ads
+@@ -1,4 +1,4 @@
+-with Liblktlang_Support.Text; use Liblktlang_Support.Text;
++with Langkit_Support.Text; use Langkit_Support.Text;
+ 
+ with Liblktlang.Implementation; use Liblktlang.Implementation;
+ 
+--- a/contrib/lkt/extensions/mains/lkt_toolbox.adb
++++ b/contrib/lkt/extensions/mains/lkt_toolbox.adb
+@@ -10,11 +10,11 @@
+ with GNATCOLL.Opt_Parse;          use GNATCOLL.Opt_Parse;
+ with GNATCOLL.Traces;
+ 
+-with Liblktlang_Support.Diagnostics; use Liblktlang_Support.Diagnostics;
+-with Liblktlang_Support.Diagnostics.Output;
+-use Liblktlang_Support.Diagnostics.Output;
+-with Liblktlang_Support.Slocs;       use Liblktlang_Support.Slocs;
+-with Liblktlang_Support.Text;        use Liblktlang_Support.Text;
++with Langkit_Support.Diagnostics; use Langkit_Support.Diagnostics;
++with Langkit_Support.Diagnostics.Output;
++use Langkit_Support.Diagnostics.Output;
++with Langkit_Support.Slocs;       use Langkit_Support.Slocs;
++with Langkit_Support.Text;        use Langkit_Support.Text;
+ 
+ with Liblktlang.Analysis;         use Liblktlang.Analysis;
+ with Liblktlang.Common;
+--- a/testsuite/tests/misc/standalone/test.yaml
++++ b/testsuite/tests/misc/standalone/test.yaml
+@@ -1,2 +1,4 @@
+ driver: python
+ input_sources: []
++control:
++- [XFAIL, "True", "Fedora-specific: Generation of standalone code not supported."]
