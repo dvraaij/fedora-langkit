@@ -1,5 +1,5 @@
-# The test suite is normally run. It can be disabled with "--without=check".
-%bcond_without check
+# The test suite isn't normally run. It can be enabled with "--with=check".
+%bcond_with check
 
 # Upstream source information.
 %global upstream_owner    AdaCore
